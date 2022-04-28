@@ -18,8 +18,7 @@ public class Recommendation {
         this.serviceAddress = null;
     }
 
-    public Recommendation(int productId, int recommendationId, String author, int rate, String content,
-                          String serviceAddress) {
+    public Recommendation(int productId, int recommendationId, String author, int rate, String content, String serviceAddress) {
         this.productId = productId;
         this.recommendationId = recommendationId;
         this.author = author;

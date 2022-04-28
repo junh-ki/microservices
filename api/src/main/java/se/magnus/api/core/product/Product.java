@@ -7,6 +7,13 @@ public class Product {
     private final int weight;
     private final String serviceAddress;
 
+    public Product() {
+        this.productId = 0;
+        this.name = null;
+        this.weight = 0;
+        this.serviceAddress = null;
+    }
+
     public Product(int productId, String name, int weight, String serviceAddress) {
         this.productId = productId;
         this.name = name;
@@ -15,19 +22,19 @@ public class Product {
     }
 
     public int getProductId() {
-        return productId;
+        return this.productId;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public int getWeight() {
-        return weight;
+        return this.weight;
     }
 
     public String getServiceAddress() {
-        return serviceAddress;
+        return this.serviceAddress;
     }
 
 }
