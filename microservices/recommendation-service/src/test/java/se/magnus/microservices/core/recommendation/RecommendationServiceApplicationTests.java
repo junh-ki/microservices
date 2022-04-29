@@ -36,22 +36,30 @@ class RecommendationServiceApplicationTests {
     void getRecommendationsMissingParameter() {
         client.get().uri("/recommendation").accept(APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isEqualTo(BAD_REQUEST)
-                .expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus()
+                .isEqualTo(BAD_REQUEST)
+                .expectHeader()
+                .contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.path").isEqualTo("/recommendation")
-                .jsonPath("$.message").isEqualTo("Required int parameter 'productId' is not present");
+                .jsonPath("$.path")
+                .isEqualTo("/recommendation")
+                .jsonPath("$.message")
+                .isEqualTo("Required int parameter 'productId' is not present");
     }
 
     @Test
     void getRecommendationsInvalidParameter() {
         client.get().uri("/recommendation?productId=no-integer").accept(APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isEqualTo(BAD_REQUEST)
-                .expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus()
+                .isEqualTo(BAD_REQUEST)
+                .expectHeader()
+                .contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.path").isEqualTo("/recommendation")
-                .jsonPath("$.message").isEqualTo("Type mismatch.");
+                .jsonPath("$.path")
+                .isEqualTo("/recommendation")
+                .jsonPath("$.message")
+                .isEqualTo("Type mismatch.");
     }
 
     @Test
@@ -59,10 +67,13 @@ class RecommendationServiceApplicationTests {
         int productIdNotFound = 113;
         client.get().uri("/recommendation?productId=" + productIdNotFound).accept(APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus()
+                .isOk()
+                .expectHeader()
+                .contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.length()").isEqualTo(0);
+                .jsonPath("$.length()")
+                .isEqualTo(0);
     }
 
     @Test
@@ -70,11 +81,15 @@ class RecommendationServiceApplicationTests {
         int productIdInvalid = -1;
         client.get().uri("/recommendation?productId=" + productIdInvalid).accept(APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isEqualTo(UNPROCESSABLE_ENTITY)
-                .expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus()
+                .isEqualTo(UNPROCESSABLE_ENTITY)
+                .expectHeader()
+                .contentType(APPLICATION_JSON)
                 .expectBody()
-                .jsonPath("$.path").isEqualTo("/recommendation")
-                .jsonPath("$.message").isEqualTo("Invalid productId: " + productIdInvalid);
+                .jsonPath("$.path")
+                .isEqualTo("/recommendation")
+                .jsonPath("$.message")
+                .isEqualTo("Invalid productId: " + productIdInvalid);
     }
 
 }
