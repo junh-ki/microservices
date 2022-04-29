@@ -1,38 +1,40 @@
 package se.magnus.api.core.product;
 
 public class Product {
-  private final int productId;
-  private final String name;
-  private final int weight;
-  private final String serviceAddress;
 
-  public Product() {
-    productId = 0;
-    name = null;
-    weight = 0;
-    serviceAddress = null;
-  }
+    private final int productId;
+    private final String name;
+    private final int weight;
+    private final String serviceAddress;
 
-  public Product(int productId, String name, int weight, String serviceAddress) {
-    this.productId = productId;
-    this.name = name;
-    this.weight = weight;
-    this.serviceAddress = serviceAddress;
-  }
+    public Product() {
+        this.productId = 0;
+        this.name = null;
+        this.weight = 0;
+        this.serviceAddress = null;
+    }
 
-  public int getProductId() {
-    return productId;
-  }
+    public Product(int productId, String name, int weight, String serviceAddress) {
+        this.productId = productId;
+        this.name = name;
+        this.weight = weight;
+        this.serviceAddress = serviceAddress;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public int getProductId() {
+        return this.productId;
+    }
 
-  public int getWeight() {
-    return weight;
-  }
+    public String getName() {
+        return this.name;
+    }
 
-  public String getServiceAddress() {
-    return serviceAddress;
-  }
+    public int getWeight() {
+        return this.weight;
+    }
+
+    public String getServiceAddress() {
+        return this.serviceAddress;
+    }
+
 }
