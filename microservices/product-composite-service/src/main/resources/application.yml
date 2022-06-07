@@ -30,9 +30,9 @@ api:
         # Normal response
         If the requested product id is found the method will return information regarding:
         1. Base product information
-        1. Reviews
-        1. Recommendations
-        1. Service Addresses\n(technical information regarding the addresses of the microservices that created the response)
+        2. Reviews
+        3. Recommendations
+        4. Service Addresses\n(technical information regarding the addresses of the microservices that created the response)
 
         # Expected partial and error responses
         In the following cases, only a partial response be created (used to simplify testing of error conditions)
