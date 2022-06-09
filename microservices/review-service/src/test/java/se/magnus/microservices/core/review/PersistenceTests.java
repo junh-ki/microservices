@@ -25,7 +25,6 @@ class PersistenceTests extends MySqlTestBase {
 
     @Autowired
     private ReviewRepository repository;
-
     private ReviewEntity savedEntity;
 
     @BeforeEach
