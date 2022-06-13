@@ -1,7 +1,10 @@
 package se.magnus.microservices.core.product;
 
 import static java.util.stream.IntStream.rangeClosed;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.List;
