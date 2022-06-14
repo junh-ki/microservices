@@ -55,9 +55,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Product getProduct(int productId) {
         try {
-            String url = productServiceUrl + "/" + productId;
+            String url = this.productServiceUrl + "/" + productId;
             LOG.debug("Will call the getProduct API on URL: {}", url);
-            Product product = restTemplate.getForObject(url, Product.class);
+            Product product = this.restTemplate.getForObject(url, Product.class);
             LOG.debug("Found a product with id: {}", Objects.requireNonNull(product).getProductId());
             return product;
         } catch (HttpClientErrorException ex) {
@@ -68,9 +68,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Product createProduct(Product body) {
         try {
-            String url = productServiceUrl;
+            String url = this.productServiceUrl;
             LOG.debug("Will post a new product to URL: {}", url);
-            Product product = restTemplate.postForObject(url, body, Product.class);
+            Product product = this.restTemplate.postForObject(url, body, Product.class);
             LOG.debug("Created a product with id: {}", Objects.requireNonNull(product).getProductId());
             return product;
         } catch (HttpClientErrorException ex) {
@@ -81,9 +81,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public void deleteProduct(int productId) {
         try {
-            String url = productServiceUrl + "/" + productId;
+            String url = this.productServiceUrl + "/" + productId;
             LOG.debug("Will call the deleteProduct API on URL: {}", url);
-            restTemplate.delete(url);
+            this.restTemplate.delete(url);
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -92,9 +92,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public List<Recommendation> getRecommendations(int productId) {
         try {
-            String url = recommendationServiceUrl + "?productId=" + productId;
+            String url = this.recommendationServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the getRecommendations API on URL: {}", url);
-            List<Recommendation> recommendations = restTemplate
+            List<Recommendation> recommendations = this.restTemplate
                     .exchange(url, GET, null, new ParameterizedTypeReference<List<Recommendation>>() {})
                     .getBody();
             LOG.debug("Found {} recommendations for a product with id: {}", Objects.requireNonNull(recommendations).size(), productId);
@@ -108,9 +108,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Recommendation createRecommendation(Recommendation body) {
         try {
-            String url = recommendationServiceUrl;
+            String url = this.recommendationServiceUrl;
             LOG.debug("Will post a new recommendation to URL: {}", url);
-            Recommendation recommendation = restTemplate.postForObject(url, body, Recommendation.class);
+            Recommendation recommendation = this.restTemplate.postForObject(url, body, Recommendation.class);
             LOG.debug("Created a recommendation with id: {}", Objects.requireNonNull(recommendation).getProductId());
             return recommendation;
         } catch (HttpClientErrorException ex) {
@@ -121,9 +121,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public void deleteRecommendations(int productId) {
         try {
-            String url = recommendationServiceUrl + "?productId=" + productId;
+            String url = this.recommendationServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the deleteRecommendations API on URL: {}", url);
-            restTemplate.delete(url);
+            this.restTemplate.delete(url);
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -132,9 +132,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public List<Review> getReviews(int productId) {
         try {
-            String url = reviewServiceUrl + "?productId=" + productId;
+            String url = this.reviewServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the getReviews API on URL: {}", url);
-            List<Review> reviews = restTemplate
+            List<Review> reviews = this.restTemplate
                     .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {})
                     .getBody();
             LOG.debug("Found {} reviews for a product with id: {}", Objects.requireNonNull(reviews).size(), productId);
@@ -148,9 +148,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public Review createReview(Review body) {
         try {
-            String url = reviewServiceUrl;
+            String url = this.reviewServiceUrl;
             LOG.debug("Will post a new review to URL: {}", url);
-            Review review = restTemplate.postForObject(url, body, Review.class);
+            Review review = this.restTemplate.postForObject(url, body, Review.class);
             LOG.debug("Created a review with id: {}", Objects.requireNonNull(review).getProductId());
             return review;
         } catch (HttpClientErrorException ex) {
@@ -161,9 +161,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Override
     public void deleteReviews(int productId) {
         try {
-            String url = reviewServiceUrl + "?productId=" + productId;
+            String url = this.reviewServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the deleteReviews API on URL: {}", url);
-            restTemplate.delete(url);
+            this.restTemplate.delete(url);
         } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
@@ -184,7 +184,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
     private String getErrorMessage(HttpClientErrorException ex) {
         try {
-            return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
+            return this.mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
         } catch (IOException ioex) {
             return ex.getMessage();
         }

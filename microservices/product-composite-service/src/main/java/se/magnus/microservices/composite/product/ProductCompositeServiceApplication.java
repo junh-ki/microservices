@@ -33,6 +33,10 @@ public class ProductCompositeServiceApplication {
         return new RestTemplate();
     }
 
+    /**
+     * Will exposed on $HOST:$PORT/swagger-ui.html
+     * @return the common OpenAPI documentation
+     */
     @Bean
     public OpenAPI getOpenApiDocumentation() {
         return new OpenAPI()
