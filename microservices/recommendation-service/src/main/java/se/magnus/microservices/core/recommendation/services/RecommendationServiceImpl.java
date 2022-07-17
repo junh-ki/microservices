@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.recommendation.RecommendationService;
 import se.magnus.api.exceptions.InvalidInputException;
+import se.magnus.microservices.core.recommendation.persistence.RecommendationEntity;
 import se.magnus.microservices.core.recommendation.persistence.RecommendationRepository;
 import se.magnus.util.http.ServiceUtil;
 
@@ -19,15 +20,28 @@ import static java.util.logging.Level.FINE;
 public class RecommendationServiceImpl implements RecommendationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecommendationServiceImpl.class);
-    private final RecommendationMapper mapper;
     private final RecommendationRepository repository;
+    private final RecommendationMapper mapper;
     private final ServiceUtil serviceUtil;
 
     @Autowired
-    public RecommendationServiceImpl(RecommendationMapper mapper, RecommendationRepository repository, ServiceUtil serviceUtil) {
-        this.mapper = mapper;
+    public RecommendationServiceImpl(RecommendationRepository repository, RecommendationMapper mapper, ServiceUtil serviceUtil) {
         this.repository = repository;
+        this.mapper = mapper;
         this.serviceUtil = serviceUtil;
+    }
+
+    @Override
+    public Mono<Recommendation> createRecommendation(Recommendation body) {
+        if (body.getProductId() < 1) {
+            throw new InvalidInputException("Invalid productId: " + body.getProductId());
+        }
+        RecommendationEntity entity = mapper.apiToEntity(body);
+        return repository.save(entity)
+                .log(LOG.getName(), FINE)
+                .onErrorMap(DuplicateKeyException.class,
+                        ex -> new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Recommendation Id:" + body.getRecommendationId()))
+                .map(mapper::entityToApi);
     }
 
     @Override
@@ -39,22 +53,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         return repository.findByProductId(productId)
                 .log(LOG.getName(), FINE)
                 .map(mapper::entityToApi)
-                .map(entity -> {
-                    entity.setServiceAddress(serviceUtil.getServiceAddress());
-                    return entity;
-                });
-    }
-
-    @Override
-    public Mono<Recommendation> createRecommendation(Recommendation body) {
-        if (body.getProductId() < 1) {
-            throw new InvalidInputException("Invalid productId: " + body.getProductId());
-        }
-        return repository.save(mapper.apiToEntity(body))
-                .log(LOG.getName(), FINE)
-                .onErrorMap(DuplicateKeyException.class,
-                        ex -> new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Recommendation Id:" + body.getRecommendationId()))
-                .map(mapper::entityToApi);
+                .map(this::setServiceAddress);
     }
 
     @Override
@@ -64,6 +63,11 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
         LOG.debug("deleteRecommendations: tries to delete recommendations for the product with productId: {}", productId);
         return repository.deleteAll(repository.findByProductId(productId));
+    }
+
+    private Recommendation setServiceAddress(Recommendation e) {
+        e.setServiceAddress(serviceUtil.getServiceAddress());
+        return e;
     }
 
 }

@@ -20,31 +20,15 @@ import static java.util.logging.Level.FINE;
 public class ProductServiceImpl implements ProductService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductServiceImpl.class);
-    private final ProductMapper mapper;
-    private final ProductRepository repository;
     private final ServiceUtil serviceUtil;
+    private final ProductRepository repository;
+    private final ProductMapper mapper;
 
     @Autowired
-    public ProductServiceImpl(ProductMapper mapper, ProductRepository repository, ServiceUtil serviceUtil) {
-        this.mapper = mapper;
+    public ProductServiceImpl(ProductRepository repository, ProductMapper mapper, ServiceUtil serviceUtil) {
         this.repository = repository;
+        this.mapper = mapper;
         this.serviceUtil = serviceUtil;
-    }
-
-    @Override
-    public Mono<Product> getProduct(int productId) {
-        if (productId < 1) {
-            throw new InvalidInputException("Invalid productId: " + productId);
-        }
-        LOG.info("Will get product info for id={}", productId);
-        return repository.findByProductId(productId)
-                .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
-                .log(LOG.getName(), FINE)
-                .map(mapper::entityToApi)
-                .map(entity -> {
-                    entity.setServiceAddress(serviceUtil.getServiceAddress());
-                    return entity;
-                });
     }
 
     @Override
@@ -61,6 +45,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Mono<Product> getProduct(int productId) {
+        if (productId < 1) {
+            throw new InvalidInputException("Invalid productId: " + productId);
+        }
+        LOG.info("Will get product info for id={}", productId);
+        return repository.findByProductId(productId)
+                .switchIfEmpty(Mono.error(new NotFoundException("No product found for productId: " + productId)))
+                .log(LOG.getName(), FINE)
+                .map(mapper::entityToApi)
+                .map(this::setServiceAddress);
+    }
+
+    @Override
     public Mono<Void> deleteProduct(int productId) {
         if (productId < 1) {
             throw new InvalidInputException("Invalid productId: " + productId);
@@ -70,6 +67,11 @@ public class ProductServiceImpl implements ProductService {
                 .log(LOG.getName(), FINE)
                 .map(repository::delete)
                 .flatMap(e -> e);
+    }
+
+    private Product setServiceAddress(Product e) {
+        e.setServiceAddress(serviceUtil.getServiceAddress());
+        return e;
     }
 
 }
