@@ -41,7 +41,8 @@ class PersistenceTests extends MongoDbTestBase {
         StepVerifier.create(repository.findById(newEntity.getId()))
                 .expectNextMatches(foundEntity -> areProductEqual(newEntity, foundEntity))
                 .verifyComplete();
-        StepVerifier.create(repository.count()).expectNext(2L)
+        StepVerifier.create(repository.count())
+                .expectNext(2L)
                 .verifyComplete();
     }
 

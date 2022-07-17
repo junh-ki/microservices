@@ -9,9 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import se.magnus.api.composite.product.ProductAggregate;
-import se.magnus.api.composite.product.RecommendationSummary;
-import se.magnus.api.composite.product.ReviewSummary;
 import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.review.Review;
@@ -26,7 +23,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ProductCompositeServiceApplicationTests {
@@ -61,30 +57,6 @@ class ProductCompositeServiceApplicationTests {
     void contextLoads() {}
 
     @Test
-    void createCompositeProduct1() {
-        ProductAggregate compositeProduct = new ProductAggregate(1, "name", 1, null, null, null);
-        postAndVerifyProduct(compositeProduct, OK);
-    }
-
-    @Test
-    void createCompositeProduct2() {
-        ProductAggregate compositeProduct = new ProductAggregate(1, "name", 1,
-                singletonList(new RecommendationSummary(1, "a", 1, "c")),
-                singletonList(new ReviewSummary(1, "a", "s", "c")), null);
-        postAndVerifyProduct(compositeProduct, OK);
-    }
-
-    @Test
-    void deleteCompositeProduct() {
-        ProductAggregate compositeProduct = new ProductAggregate(1, "name", 1,
-                singletonList(new RecommendationSummary(1, "a", 1, "c")),
-                singletonList(new ReviewSummary(1, "a", "s", "c")), null);
-        postAndVerifyProduct(compositeProduct, OK);
-        deleteAndVerifyProduct(compositeProduct.getProductId(), OK);
-        deleteAndVerifyProduct(compositeProduct.getProductId(), OK);
-    }
-
-    @Test
     void getProductById() {
         getAndVerifyProduct(PRODUCT_ID_OK, OK)
                 .jsonPath("$.productId").isEqualTo(PRODUCT_ID_OK)
@@ -114,21 +86,6 @@ class ProductCompositeServiceApplicationTests {
                 .expectStatus().isEqualTo(expectedStatus)
                 .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody();
-    }
-
-    private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus) {
-        client.post()
-                .uri("/product-composite")
-                .body(just(compositeProduct), ProductAggregate.class)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus);
-    }
-
-    private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus) {
-        client.delete()
-                .uri("/product-composite/" + productId)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus);
     }
 
 }
