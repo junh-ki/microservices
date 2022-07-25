@@ -16,7 +16,6 @@ import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.client.RestTemplate;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import se.magnus.microservices.composite.product.services.ProductCompositeIntegration;
@@ -31,6 +30,7 @@ public class ProductCompositeServiceApplication {
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeServiceApplication.class);
     private final Integer threadPoolSize;
     private final Integer taskQueueSize;
+    @Autowired
     private ProductCompositeIntegration integration;
 
     @Value("${api.common.version}")         String apiVersion;
@@ -47,16 +47,9 @@ public class ProductCompositeServiceApplication {
 
     @Autowired
     public ProductCompositeServiceApplication(@Value("${app.threadPoolSize:10}") Integer threadPoolSize,
-                                              @Value("${app.taskQueueSize:100}") Integer taskQueueSize,
-                                              ProductCompositeIntegration integration) {
+                                              @Value("${app.taskQueueSize:100}") Integer taskQueueSize) {
         this.threadPoolSize = threadPoolSize;
         this.taskQueueSize = taskQueueSize;
-        this.integration = integration;
-    }
-
-    @Bean
-    RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 
     /**
@@ -65,31 +58,31 @@ public class ProductCompositeServiceApplication {
      */
     @Bean
     public OpenAPI getOpenApiDocumentation() {
-        return new OpenAPI()
-                .info(new Info().title(this.apiTitle)
-                        .description(this.apiDescription)
-                        .version(this.apiVersion)
+        return new OpenAPI().info(new Info()
+                        .title(apiTitle)
+                        .description(apiDescription)
+                        .version(apiVersion)
                         .contact(new Contact()
-                                .name(this.apiContactName)
-                                .url(this.apiContactUrl)
-                                .email(this.apiContactEmail))
-                        .termsOfService(this.apiTermsOfService)
+                                .name(apiContactName)
+                                .url(apiContactUrl)
+                                .email(apiContactEmail))
+                        .termsOfService(apiTermsOfService)
                         .license(new License()
-                                .name(this.apiLicense)
-                                .url(this.apiLicenseUrl)))
+                                .name(apiLicense)
+                                .url(apiLicenseUrl)))
                 .externalDocs(new ExternalDocumentation()
-                        .description(this.apiExternalDocDesc)
-                        .url(this.apiExternalDocUrl));
+                        .description(apiExternalDocDesc)
+                        .url(apiExternalDocUrl));
     }
 
     @Bean
     public Scheduler publishEventScheduler() {
-        LOG.info("Creates a messagingScheduler with connectionPoolSize = {}", this.threadPoolSize);
-        return Schedulers.newBoundedElastic(this.threadPoolSize, this.taskQueueSize, "publish-pool");
+        LOG.info("Creates a messagingScheduler with connectionPoolSize = {}", threadPoolSize);
+        return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-pool");
     }
 
     @Bean
-    ReactiveHealthContributor coreServices() {
+    public ReactiveHealthContributor coreServices() {
         final Map<String, ReactiveHealthIndicator> registry = new LinkedHashMap<>();
         registry.put("product", () -> integration.getProductHealth());
         registry.put("recommendation", () -> integration.getRecommendationHealth());
