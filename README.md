@@ -12,3 +12,9 @@ To run all the sub-projects, run:
 To build and start the docker-compose system landscape:  
 `./gradlew build && docker-compose build && docker-compose up -d`  
 Make sure that Docker Daemon is up and running, otherwise some tests will fail.
+
+In case Docker Daemon is not running:  
+`sudo ln -s ~$USER/.rd/docker.sock /var/run/docker.sock`
+
+Getting into a docker container:  
+`docker exec -it abcd /bin/bash`
