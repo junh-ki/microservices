@@ -38,6 +38,8 @@ import static se.magnus.api.event.Event.Type.DELETE;
 public class ProductCompositeIntegration implements ProductService, RecommendationService, ReviewService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeIntegration.class);
+    private static final String COLON = ":";
+    private static final String HTTP_PREFIX = "http://";
     private final WebClient webClient;
     private final ObjectMapper mapper;
     private final String productServiceUrl;
@@ -61,16 +63,16 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         this.webClient = webClient.build();
         this.streamBridge = streamBridge;
         this.publishEventScheduler = publishEventScheduler;
-        this.productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product";
-        this.recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation";
-        this.reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review";
+        this.productServiceUrl = HTTP_PREFIX + productServiceHost + COLON + productServicePort;
+        this.recommendationServiceUrl = HTTP_PREFIX + recommendationServiceHost + COLON + recommendationServicePort;
+        this.reviewServiceUrl = HTTP_PREFIX + reviewServiceHost + COLON + reviewServicePort;
     }
 
     @Override
     public Mono<Product> getProduct(int productId) {
         String url = this.productServiceUrl + "/" + productId;
         LOG.debug("Will call the getProduct API on URL: {}", url);
-        return webClient.get()
+        return this.webClient.get()
                 .uri(url)
                 .retrieve()
                 .bodyToMono(Product.class)
@@ -84,23 +86,23 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             sendMessage("products-out-0"
                     , new Event(CREATE, body.getProductId(), body));
             return body;
-        }).subscribeOn(publishEventScheduler);
+        }).subscribeOn(this.publishEventScheduler);
     }
 
     @Override
     public Mono<Void> deleteProduct(int productId) {
         return Mono.fromRunnable(() -> sendMessage("products-out-0",
                         new Event(DELETE, productId, null)))
-                .subscribeOn(publishEventScheduler)
+                .subscribeOn(this.publishEventScheduler)
                 .then();
     }
 
     @Override
     public Flux<Recommendation> getRecommendations(int productId) {
-        String url = recommendationServiceUrl + "/recommendation?productId=" + productId;
+        String url = this.recommendationServiceUrl + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return webClient.get()
+        return this.webClient.get()
                 .uri(url)
                 .retrieve()
                 .bodyToFlux(Recommendation.class)
@@ -114,22 +116,22 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             sendMessage("recommendations-out-0",
                     new Event(CREATE, body.getProductId(), body));
             return body;
-        }).subscribeOn(publishEventScheduler);
+        }).subscribeOn(this.publishEventScheduler);
     }
 
     @Override
     public Mono<Void> deleteRecommendations(int productId) {
         return Mono.fromRunnable(() -> sendMessage("recommendations-out-0",
                         new Event(DELETE, productId, null)))
-                .subscribeOn(publishEventScheduler).then();
+                .subscribeOn(this.publishEventScheduler).then();
     }
 
     @Override
     public Flux<Review> getReviews(int productId) {
-        String url = reviewServiceUrl + "/review?productId=" + productId;
+        String url = this.reviewServiceUrl + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return webClient.get()
+        return this.webClient.get()
                 .uri(url)
                 .retrieve()
                 .bodyToFlux(Review.class)
@@ -143,31 +145,31 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             sendMessage("reviews-out-0",
                     new Event(CREATE, body.getProductId(), body));
             return body;
-        }).subscribeOn(publishEventScheduler);
+        }).subscribeOn(this.publishEventScheduler);
     }
 
     @Override
     public Mono<Void> deleteReviews(int productId) {
         return Mono.fromRunnable(() -> sendMessage("reviews-out-0", new Event(DELETE, productId, null)))
-                .subscribeOn(publishEventScheduler).then();
+                .subscribeOn(this.publishEventScheduler).then();
     }
 
     public Mono<Health> getProductHealth() {
-        return getHealth(productServiceUrl);
+        return getHealth(this.productServiceUrl);
     }
 
     public Mono<Health> getRecommendationHealth() {
-        return getHealth(recommendationServiceUrl);
+        return getHealth(this.recommendationServiceUrl);
     }
 
     public Mono<Health> getReviewHealth() {
-        return getHealth(reviewServiceUrl);
+        return getHealth(this.reviewServiceUrl);
     }
 
     private Mono<Health> getHealth(String url) {
         url += "/actuator/health";
         LOG.debug("Will call the Health API on URL: {}", url);
-        return webClient.get().uri(url).retrieve().bodyToMono(String.class)
+        return this.webClient.get().uri(url).retrieve().bodyToMono(String.class)
                 .map(s -> new Health.Builder().up().build())
                 .onErrorResume(ex -> Mono.just(new Health.Builder().down(ex).build()))
                 .log(LOG.getName(), FINE);
@@ -178,7 +180,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         Message message = MessageBuilder.withPayload(event)
                 .setHeader("partitionKey", event.getKey())
                 .build();
-        streamBridge.send(bindingName, message);
+        this.streamBridge.send(bindingName, message);
     }
 
     private Throwable handleException(Throwable ex) {
@@ -201,7 +203,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
     private String getErrorMessage(WebClientResponseException ex) {
         try {
-            return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
+            return this.mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
         } catch (IOException ioex) {
             return ex.getMessage();
         }
