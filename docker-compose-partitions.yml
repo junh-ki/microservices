@@ -113,7 +113,7 @@ services:
       - 5672:5672
       - 15672:15672
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: ["CMD", "rabbitmqctl", "cluster_status"]
       interval: 5s
       timeout: 2s
       retries: 60
