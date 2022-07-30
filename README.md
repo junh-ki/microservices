@@ -22,6 +22,12 @@ In case Docker Daemon is not running:
 Getting into a docker container:  
 `docker exec -it abcd /bin/bash`  
 
+To change docker-compose.yml file:  
+`export COMPOSE_FILE=docker-compose-partitions.yml`  
+`docker-compose build && docker-compose up -d`  
+`docker-compose down --volumes`  
+`unset COMPOSE_FILE`  
+
 When running RabbitMQ with partitions, replace the healthcheck argument, `status`, with `cluster_status`.  
 Otherwise, the RabbitMQ container will keep getting killed. -> I don't know why yet.  
 
