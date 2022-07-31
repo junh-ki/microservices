@@ -33,3 +33,15 @@ Otherwise, the RabbitMQ container will keep getting killed. -> I don't know why 
 
 See the logs in a container:  
 `docker logs {{container_name}} -f`  
+
+To see a list of topics in the Kafka container:  
+`docker-compose exec kafka /opt/kafka/bin/kafka-topics.sh --zookeeper zookeeper --list`
+
+To see the partitions in a specific topic, for example, the `products` topic:  
+`docker-compose exec kafka /opt/kafka/bin/kafka-topics.sh --describe --zookeeper zookeeper --topic products`
+
+To see all the messages in a specific topic, for example, the `products` topic:  
+`docker-compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic products --from-beginning --timeout-ms 1000`
+
+To see all the messages in a specific parition, for example, parition 1 in the `products` topic:  
+`docker-compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic products --from-beginning --timeout-ms 1000 --partition 1`
