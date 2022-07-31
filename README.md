@@ -45,3 +45,19 @@ To see all the messages in a specific topic, for example, the `products` topic:
 
 To see all the messages in a specific parition, for example, parition 1 in the `products` topic:  
 `docker-compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic products --from-beginning --timeout-ms 1000 --partition 1`
+
+To use the test script to automatically run the tests with RabbitMQ and Kafka:  
+
+1. Run the tests using the default Docker Compose file, that is, with RabbitMQ without partitions:  
+`unset COMPOSE_FILE`  
+`./test-em-all.bash start stop`  
+
+2. Run the tests for RabbitMQ with two partitions per topic using the Docker Compose `docker-compose-partitions.yml` file:  
+`export COMPOSE_FILE=docker-compose-partitions.yml`  
+`./test-em-all.bash start stop`  
+`unset COMPOSE_FILE`  
+
+3. Run the tests with Kafka and two paritions per topic using the Docker Compose `docker-compose-kafka.yml` file:  
+`export COMPOSE_FILE=docker-compose-kafka.yml`  
+`./test-em-all.bash start stop`  
+`unset COMPOSE_FILE`  
